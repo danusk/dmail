@@ -19,7 +19,16 @@ class MyServer(socketserver.BaseRequestHandler):
         print("{} wrote:".format(self.client_address[0]))
         print(self.data)
         # just send back the same data, but upper-cased
-        self.request.sendall(self.data.upper())
+        processed = self.process_message(str(self.data))
+        self.request.sendall(bytes(processed, "utf-8"))
+
+    def process_message(self, data):
+        if "lower" in data:
+            return data.lower()
+        elif "upper" in data:
+            return data.upper()
+        else:
+            return data
 
 
 def server_main():
@@ -28,6 +37,7 @@ def server_main():
     server = socketserver.TCPServer((HOST, PORT), MyServer)
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
+    print("Running on :", HOST, PORT)
     server.serve_forever()
 
 
