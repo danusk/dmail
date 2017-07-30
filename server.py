@@ -4,6 +4,7 @@
 
 import socketserver
 import json
+import logging
 
 
 class MyServer(socketserver.BaseRequestHandler):
@@ -17,8 +18,8 @@ class MyServer(socketserver.BaseRequestHandler):
     def handle(self):
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
-        print("{} wrote:".format(self.client_address[0]))
-        print(self.data)
+        logging.info("{} wrote:".format(self.client_address[0]))
+        logging.info(self.data)
         # just send back the same data, but upper-
         raw_request = self.data.decode(encoding='UTF-8')
         # log the raw message
@@ -47,12 +48,13 @@ class MyServer(socketserver.BaseRequestHandler):
 
 
 def server_main():
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
     HOST, PORT = "localhost", 9999
     # Create the server, binding to localhost on port 9999
     server = socketserver.TCPServer((HOST, PORT), MyServer)
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
-    print("Running on :", HOST, PORT)
+    logging.info("Running on {}:{}".format(HOST, PORT))
     server.serve_forever()
 
 
