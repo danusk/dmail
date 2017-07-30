@@ -5,6 +5,7 @@
 import socketserver
 import json
 import logging
+import sqlite3
 
 
 class MyServer(socketserver.BaseRequestHandler):
@@ -15,17 +16,20 @@ class MyServer(socketserver.BaseRequestHandler):
    client.
    """
 
+    # FIXME: Don't use class level variable
+    DB_CONN = sqlite3.connect('logdata.db')
+
     def handle(self):
         # self.request is the TCP socket connected to the client
-        self.data = self.request.recv(1024).strip()
+        data = self.request.recv(1024).strip()
         logging.info("{} wrote:".format(self.client_address[0]))
-        logging.info(self.data)
-        # just send back the same data, but upper-
-        raw_request = self.data.decode(encoding='UTF-8')
+        logging.info(data)
+
+        raw_request = data.decode(encoding='UTF-8')
         # log the raw message
-        self.log_message(raw_request)
         # turn into json object
         request = json.loads(raw_request)
+        self.log_message(request)
         # process the message
         processed = self.process_message(request)
         # send response
@@ -41,9 +45,13 @@ class MyServer(socketserver.BaseRequestHandler):
         else:
             return body
 
+    # TODO: Actually do DB_CONN.close() before shutting down
     def log_message(self, message):
-        with open('logfile.txt', 'a') as f:
-            f.write(message + '\n')
+        name = message['whoami']
+        body = message['data']
+        self.DB_CONN.cursor().execute(
+            'INSERT INTO messages VALUES ("{}", "{}")'.format(name, body)
+        )
         return
 
 
@@ -52,6 +60,13 @@ def server_main():
     HOST, PORT = "localhost", 9999
     # Create the server, binding to localhost on port 9999
     server = socketserver.TCPServer((HOST, PORT), MyServer)
+    # create a Connection object that represents the database
+    # create table
+    MyServer.DB_CONN.cursor().execute(
+        'CREATE TABLE IF NOT EXISTS messages (name text, body text)'
+    )
+    # save the changes
+    MyServer.DB_CONN.commit()
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
     logging.info("Running on {}:{}".format(HOST, PORT))
