@@ -3,6 +3,7 @@
 #############
 
 import socketserver
+import json
 
 
 class MyServer(socketserver.BaseRequestHandler):
@@ -19,17 +20,19 @@ class MyServer(socketserver.BaseRequestHandler):
         print("{} wrote:".format(self.client_address[0]))
         print(self.data)
         # just send back the same data, but upper-cased
-        processed = self.process_message(str(self.data))
+        processed = self.process_message(self.data.decode(encoding="UTF-8"))
         self.request.sendall(bytes(processed, "utf-8"))
 
     def process_message(self, data):
-        if "lower" in data:
-            return data.lower()
-        elif "upper" in data:
-            return data.upper()
+        message = json.loads(data)
+        param = message['parameter']
+        body = message['data']
+        if param == 'upper':
+            return body.upper()
+        elif param == 'lower':
+            return body.lower()
         else:
-            return data
-
+            return body
 
 def server_main():
     HOST, PORT = "localhost", 9999
