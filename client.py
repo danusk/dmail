@@ -2,14 +2,25 @@
 # client.py #
 #############
 
-
+import argparse
 import socket
 import json
 import logging
 
+
 def client_main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("host", help='host to connect to', type=str)
+    parser.add_argument(
+        "-p",
+        "--port",
+        default=9999,
+        help='port to connect to',
+        type=int
+    )
+    args = parser.parse_args()
+
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
-    HOST, PORT = "localhost", 9999
     data = "hi blah blah blah"
 
     request = json.dumps(
@@ -22,7 +33,7 @@ def client_main():
     # Create a socket (SOCK_STREAM means a TCP socket)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         # Connect to server and send UTF-8 data
-        sock.connect((HOST, PORT))
+        sock.connect((args.host, args.port))
         sock.sendall(bytes(request + "\n", "utf-8"))
         logging.info("Sent:     {}".format(data))
         # Receive data from the server and shut down

@@ -57,15 +57,22 @@ class MyServer(socketserver.BaseRequestHandler):
 
 
 def server_main():
+    host = 'localhost'
     parser = argparse.ArgumentParser()
-    parser.add_argument("host", help='host to connect to', type=str)
-    parser.add_argument("port", help='port to connect to', type=int)
+    parser.add_argument(
+        "-p",
+        "--port",
+        default=9999,
+        required=False,
+        help='port to connect to',
+        type=int,
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 
     # Create the server, binding to localhost on port 9999
-    server = socketserver.TCPServer((args.host, args.port), MyServer)
+    server = socketserver.TCPServer((host, args.port), MyServer)
     # create a Connection object that represents the database
     # create table
     MyServer.DB_CONN.cursor().execute(
@@ -75,7 +82,7 @@ def server_main():
     MyServer.DB_CONN.commit()
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
-    logging.info("Running on {}:{}".format(args.host, args.port))
+    logging.info("Running on {}:{}".format(host, args.port))
     server.serve_forever()
 
 
