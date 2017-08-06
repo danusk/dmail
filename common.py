@@ -7,9 +7,9 @@ import json
 DmailRequest = namedtuple('DmailRequest', ['whoami', 'parameter', 'data'])
 
 
-def from_raw_bytes():
+def from_raw_bytes(raw_bytes):
     """Take raw bytes and turn it into a DmailRequest"""
-    return
+    return from_json(json.loads(raw_bytes.decode(encoding='UTF-8')))
 
 
 def into_raw_bytes(dmail_request):

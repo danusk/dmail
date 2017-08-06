@@ -5,10 +5,9 @@
 
 import argparse
 import socketserver
-import json
 import logging
 import sqlite3
-from common import DmailRequest, from_json
+from common import from_raw_bytes
 
 
 class MyServer(socketserver.BaseRequestHandler):
@@ -28,11 +27,8 @@ class MyServer(socketserver.BaseRequestHandler):
         logging.info("{} wrote:".format(self.client_address[0]))
         logging.info(data)
 
-        raw_request = data.decode(encoding='UTF-8')
-        # log the raw message
-        # turn into json object
-        request = from_json(json.loads(raw_request))
-
+        # logging actual request
+        request = from_raw_bytes(data)
         self.log_message(request)
         # process the message
         processed = self.process_message(request)
