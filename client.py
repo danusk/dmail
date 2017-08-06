@@ -7,7 +7,7 @@ import argparse
 import socket
 import json
 import logging
-from common import to_json, DmailRequest
+from common import into_raw_bytes, DmailRequest
 
 
 def client_main():
@@ -25,13 +25,13 @@ def client_main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
     data = "hi blah blah blah"
 
-    request = json.dumps(to_json(DmailRequest('name', 'upper', data)))
+    request = DmailRequest('name', 'upper', data)
 
     # Create a socket (SOCK_STREAM means a TCP socket)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         # Connect to server and send UTF-8 data
         sock.connect((args.host, args.port))
-        sock.sendall(bytes(request + "\n", "utf-8"))
+        sock.sendall(into_raw_bytes(request))
         logging.info("Sent:     {}".format(data))
         # Receive data from the server and shut down
         received = str(sock.recv(1024), "utf-8")

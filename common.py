@@ -2,18 +2,19 @@
 
 from collections import namedtuple
 import json
-# message namedtuple
-# two functions: into_message and serialized_message
-# declare message named tuple
+
+
 DmailRequest = namedtuple('DmailRequest', ['whoami', 'parameter', 'data'])
 
 
-def into_message():
+def from_raw_bytes():
+    """Take raw bytes and turn it into a DmailRequest"""
     return
 
 
-def into_raw():
-    return
+def into_raw_bytes(dmail_request):
+    """Turn a DmailRequest into a raw bytes string"""
+    return bytes(json.dumps(to_json(dmail_request)) + "\n", "utf-8")
 
 
 def to_json(request):
