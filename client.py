@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #############
 # client.py #
 #############
@@ -6,6 +7,7 @@ import argparse
 import socket
 import json
 import logging
+from common import to_json, DmailRequest
 
 
 def client_main():
@@ -23,13 +25,8 @@ def client_main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
     data = "hi blah blah blah"
 
-    request = json.dumps(
-        {
-            'whoami': 'name',
-            'parameter': 'upper',
-            'data': data,
-        }
-    )
+    request = json.dumps(to_json(DmailRequest('name', 'upper', data)))
+
     # Create a socket (SOCK_STREAM means a TCP socket)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         # Connect to server and send UTF-8 data

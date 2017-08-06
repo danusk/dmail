@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #############
 # server.py #
 #############
@@ -7,6 +8,7 @@ import socketserver
 import json
 import logging
 import sqlite3
+from common import DmailRequest, from_json
 
 
 class MyServer(socketserver.BaseRequestHandler):
@@ -29,16 +31,17 @@ class MyServer(socketserver.BaseRequestHandler):
         raw_request = data.decode(encoding='UTF-8')
         # log the raw message
         # turn into json object
-        request = json.loads(raw_request)
+        request = from_json(json.loads(raw_request))
+
         self.log_message(request)
         # process the message
         processed = self.process_message(request)
         # send response
         self.request.sendall(bytes(processed, "utf-8"))
 
-    def process_message(self, message):
-        param = message['parameter']
-        body = message['data']
+    def process_message(self, request_obj):
+        param = request_obj.parameter
+        body = request_obj.data
         if param == 'upper':
             return body.upper()
         elif param == 'lower':
@@ -47,9 +50,9 @@ class MyServer(socketserver.BaseRequestHandler):
             return body
 
     # TODO: Actually do DB_CONN.close() before shutting down
-    def log_message(self, message):
-        name = message['whoami']
-        body = message['data']
+    def log_message(self, request_obj):
+        name = request_obj.whoami
+        body = request_obj.data
         self.DB_CONN.cursor().execute(
             'INSERT INTO messages VALUES ("{}", "{}")'.format(name, body)
         )
