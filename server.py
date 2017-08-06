@@ -4,6 +4,7 @@
 #############
 
 import argparse
+import atexit
 import socketserver
 import logging
 import sqlite3
@@ -55,6 +56,11 @@ class MyServer(socketserver.BaseRequestHandler):
         return
 
 
+def _close_db(db_conn):
+    print("closing db...")
+    db_conn.close()
+
+
 def server_main():
     host = 'localhost'
     parser = argparse.ArgumentParser()
@@ -79,6 +85,8 @@ def server_main():
     )
     # save the changes
     MyServer.DB_CONN.commit()
+    # add atexit
+    atexit.register(_close_db, MyServer.DB_CONN)
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
     logging.info("Running on {}:{}".format(host, args.port))

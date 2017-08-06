@@ -5,7 +5,6 @@
 
 import argparse
 import socket
-import json
 import logging
 from common import into_raw_bytes, DmailRequest
 
